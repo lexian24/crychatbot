@@ -1,7 +1,7 @@
 import os
 import pdfplumber
 import json
-from langchain.documents import Document
+from langchain_core.documents import Document
 from langchain.embeddings import OllamaEmbeddings
 from langchain.vectorstores import FAISS
 
