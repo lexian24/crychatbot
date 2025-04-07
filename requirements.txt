@@ -1,5 +1,5 @@
 langchain
 langchain-ollama
 langchain-chroma
-pandas
-pysqlite3-binary
+faiss-cpu
+pdfplumber
