@@ -1,12 +1,13 @@
 import streamlit as st
 from langchain_ollama.llms import OllamaLLM
 from langchain.prompts import ChatPromptTemplate
-from vector import retriever  # Assuming vector.py contains the vector store setup code
+from vector import retriever  # Import the retriever from vector.py
 import os
 
-# Initialize model
+# Initialize the language model
 model = OllamaLLM(model="llama3.2")
 
+# Define the prompt template
 template = """
 You are a professional baby care expert who provides helpful, practical, and evidence-based advice to caregivers.
 
@@ -20,13 +21,12 @@ Question:
 
 Please provide your expert response below.
 """
-
 prompt = ChatPromptTemplate.from_template(template)
 chain = prompt | model
 
-# Streamlit UI
+# Configure Streamlit UI
 st.set_page_config(page_title="Baby Care Bot", layout="centered")
-st.title("Baby Care Bot Testing")
+st.title("Baby Care Bot")
 st.write("Welcome! Ask me any baby care-related question and I'll provide evidence-based advice to help you.")
 
 # User input
@@ -36,38 +36,30 @@ if question:
     # Retrieve relevant documents
     retrieved_docs = retriever.invoke(question)
     
-    # Prepare the studies text for the prompt
+    # Prepare the studies text for the prompt (concatenating document content)
     studies = "\n\n".join([doc.page_content for doc in retrieved_docs])
-
-    # Generate the response from the model
+    
+    # Get the expert advice from the model
     result = chain.invoke({"studies": studies, "question": question})
-
-    # Display the result
+    
     st.subheader("Expert Advice")
     st.write(result)
-
-    # Display the relevant documents and their links
+    
+    # Display unique relevant document links and snippets
     st.subheader("Relevant Documents")
-    
-    # Use a set to keep track of which documents have already been displayed
     displayed_docs = set()
-    
     for doc in retrieved_docs:
-        doc_source = doc.metadata.get('source', 'Unknown')
+        doc_source = doc.metadata.get("source", "Unknown")
         file_name = os.path.basename(doc_source)
-        
-        # If the document has already been displayed, skip it
         if doc_source in displayed_docs:
-            continue
-        
-        # Otherwise, add the document to the set and display it
+            continue  # Skip if already displayed
         displayed_docs.add(doc_source)
-        
-        # Display document snippet and clickable link
         if os.path.exists(doc_source):
-            st.write(f"**Document:** [{file_name}]({doc_source})")
+            st.markdown(f"**Document:** [{file_name}]({doc_source})")
         else:
             st.write(f"Document: {file_name}")
-        
+else:
+    st.write("Please enter a question in the text box above.")
+
 st.sidebar.write("## About")
-st.sidebar.write("This is a testing app.")
+st.sidebar.write("This is a baby care bot that uses FAISS as a vector store to retrieve relevant information from PDFs.")
