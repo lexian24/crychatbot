@@ -4,6 +4,13 @@ from langchain_core.documents import Document
 import os
 import pdfplumber
 
+import sys
+try:
+    import pysqlite3 as sqlite3  # Forcefully use pysqlite3
+    sys.modules["sqlite3"] = sqlite3
+except ImportError:
+    import sqlite3  # Fallback to the standard sqlite3 if pysqlite3 is not available
+
 # Initialize the embeddings model
 embeddings = OllamaEmbeddings(model="mxbai-embed-large")
 
